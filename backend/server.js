@@ -3,10 +3,14 @@ const express = require('express');
 const cors = require('cors');
 const config = require('./config');
 const { checkMoodleConnection, checkZoomConnection } = require('./connections');
+const zoomBulkRouter = require('./zoom-bulk');
 const app = express();
 const PORT = process.env.PORT || 4000;
 
+
 app.use(cors());
+app.use(express.json());
+app.use(zoomBulkRouter);
 
 
 // Simulated stats (replace with real data later)

@@ -17,6 +17,7 @@ import {
   Calendar,
   PlayCircle,
   UserCheck,
+  Videotape,
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import DashboardPage from "./dashboard/page"
@@ -31,6 +32,7 @@ import MeetingsPage from "./zoom/meetings/page"
 import RecordingsPage from "./zoom/recordings/page"
 import SchedulePage from "./zoom/schedule/page"
 import AttendancePage from "./zoom/attendance/page"
+import GeneratePage from "./zoom/generar/page"
 
 export default function LMSAutomationDashboard() {
   const [activeSection, setActiveSection] = useState("dashboard")
@@ -59,6 +61,7 @@ export default function LMSAutomationDashboard() {
       label: "ZOOM INTEGRATION",
       type: "group",
       children: [
+        { id: "zoom-generate", icon: Videotape, label: "Generar" },
         { id: "zoom-meetings", icon: Video, label: "Meetings" },
         { id: "zoom-recordings", icon: PlayCircle, label: "Recordings" },
         { id: "zoom-schedule", icon: Calendar, label: "Schedule" },
@@ -91,6 +94,8 @@ export default function LMSAutomationDashboard() {
         return <EnrollmentsPage />
       case "lms-assignments":
         return <AssignmentsPage />
+      case "zoom-generate":
+        return <GeneratePage />
       case "zoom-meetings":
         return <MeetingsPage />
       case "zoom-recordings":

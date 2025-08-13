@@ -26,7 +26,7 @@ export default function DashboardPage() {
     <div className="p-6 space-y-6">
       {/* Main Dashboard Grid */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-        {/* Integration Status */}
+        {/* ESTADO DE INTEGRACIÓN */}
         <Card className="lg:col-span-4 bg-neutral-900 border-neutral-700">
           <CardHeader className="pb-3">
             <CardTitle className="text-sm font-medium text-neutral-300 tracking-wider">ESTADO DE INTEGRACIÓN</CardTitle>
@@ -95,7 +95,7 @@ export default function DashboardPage() {
           </CardContent>
         </Card>
 
-        {/* Recent Automations */}
+        {/* AUTOMATIZACIONES RECENTES */}
         <Card className="lg:col-span-4 bg-neutral-900 border-neutral-700">
           <CardHeader className="pb-3">
             <CardTitle className="text-sm font-medium text-neutral-300 tracking-wider">AUTOMATIZACIONES RECIENTES</CardTitle>
@@ -220,11 +220,11 @@ export default function DashboardPage() {
           </CardContent>
         </Card>
 
-        {/* Automation Performance Chart */}
+        {/* RENDIMIENTO DE AUTOMATIZACIONES */}
         <Card className="lg:col-span-8 bg-neutral-900 border-neutral-700">
           <CardHeader className="pb-3">
             <CardTitle className="text-sm font-medium text-neutral-300 tracking-wider">
-              AUTOMATION PERFORMANCE
+              RENDIMIENTO DE AUTOMATIZACIONES
             </CardTitle>
           </CardHeader>
           <CardContent>
@@ -284,17 +284,17 @@ export default function DashboardPage() {
           </CardContent>
         </Card>
 
-        {/* Quick Stats */}
+        {/* MÉTRICAS RÁPIDAS */}
         <Card className="lg:col-span-4 bg-neutral-900 border-neutral-700">
           <CardHeader className="pb-3">
-            <CardTitle className="text-sm font-medium text-neutral-300 tracking-wider">QUICK STATS</CardTitle>
+            <CardTitle className="text-sm font-medium text-neutral-300 tracking-wider">MÉTRICAS RÁPIDAS</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="space-y-4">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
                   <Calendar className="w-4 h-4 text-neutral-400" />
-                  <span className="text-xs text-neutral-400">Today's Meetings</span>
+                  <span className="text-xs text-neutral-400">Sesiones de hoy</span>
                 </div>
                 <span className="text-sm text-white font-mono">18</span>
               </div>
@@ -302,15 +302,23 @@ export default function DashboardPage() {
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
                   <Users className="w-4 h-4 text-neutral-400" />
-                  <span className="text-xs text-neutral-400">Active Students</span>
+                  <span className="text-xs text-neutral-400">Estudiantes Activos</span>
                 </div>
                 <span className="text-sm text-white font-mono">1,247</span>
               </div>
 
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
+                  <Users className="w-4 h-4 text-neutral-400" />
+                  <span className="text-xs text-neutral-400">Docentes Activos</span>
+                </div>
+                <span className="text-sm text-white font-mono">47</span>
+              </div>
+
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
                   <TrendingUp className="w-4 h-4 text-neutral-400" />
-                  <span className="text-xs text-neutral-400">ejecutado Rate</span>
+                  <span className="text-xs text-neutral-400">Presición</span>
                 </div>
                 <span className="text-sm text-white font-mono">98.7%</span>
               </div>
@@ -318,17 +326,17 @@ export default function DashboardPage() {
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
                   <Activity className="w-4 h-4 text-neutral-400" />
-                  <span className="text-xs text-neutral-400">Automations Running</span>
+                  <span className="text-xs text-neutral-400">Automatizaciones en Ejecución</span>
                 </div>
                 <span className="text-sm text-white font-mono">12</span>
               </div>
 
               <div className="pt-4 border-t border-neutral-700">
-                <div className="text-xs text-neutral-400 mb-2">System Health</div>
+                <div className="text-xs text-neutral-400 mb-2">Estado del Sistema</div>
                 <div className="w-full bg-neutral-800 rounded-full h-2">
                   <div className="bg-white h-2 rounded-full w-[98%]"></div>
                 </div>
-                <div className="text-xs text-white font-mono mt-1">98% Operational</div>
+                <div className="text-xs text-white font-mono mt-1">98% Operativo</div>
               </div>
             </div>
           </CardContent>
