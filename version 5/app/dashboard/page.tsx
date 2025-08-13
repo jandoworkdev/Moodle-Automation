@@ -1,9 +1,27 @@
 "use client"
 
+
+import { useEffect, useState } from "react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { BookOpen, Video, Users, Calendar, TrendingUp, Activity } from "lucide-react"
 
+
 export default function DashboardPage() {
+  const [integration, setIntegration] = useState({
+    moodle: { connected: false, version: '', lastCheck: '', error: null },
+    zoom: { connected: false, lastCheck: '', error: null },
+  });
+  const [indicators, setIndicators] = useState({ activeCourses: 0, users: 0 });
+
+  useEffect(() => {
+    fetch("http://localhost:4000/api/integration-status")
+      .then((res) => res.json())
+      .then((data) => setIntegration(data));
+    fetch("http://localhost:4000/api/indicators")
+      .then((res) => res.json())
+      .then((data) => setIndicators(data));
+  }, []);
+
   return (
     <div className="p-6 space-y-6">
       {/* Main Dashboard Grid */}
@@ -11,7 +29,7 @@ export default function DashboardPage() {
         {/* Integration Status */}
         <Card className="lg:col-span-4 bg-neutral-900 border-neutral-700">
           <CardHeader className="pb-3">
-            <CardTitle className="text-sm font-medium text-neutral-300 tracking-wider">INTEGRATION STATUS</CardTitle>
+            <CardTitle className="text-sm font-medium text-neutral-300 tracking-wider">ESTADO DE INTEGRACIÓN</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="space-y-4">
@@ -19,13 +37,13 @@ export default function DashboardPage() {
                 <div className="flex items-center gap-3">
                   <BookOpen className="w-5 h-5 text-[#27d4ba]" />
                   <div>
-                    <div className="text-sm text-white font-medium">Moodle 4.5</div>
-                    <div className="text-xs text-neutral-400">LMS Platform</div>
+                    <div className="text-sm text-white font-medium">Moodle {integration.moodle.version || ''}</div>
+                    <div className="text-xs text-neutral-400">LMS</div>
                   </div>
                 </div>
                 <div className="flex items-center gap-2">
-                  <div className="w-2 h-2 bg-white rounded-full"></div>
-                  <span className="text-xs text-white">CONNECTED</span>
+                  <div className={`w-2 h-2 rounded-full animate-pulse ${integration.moodle.connected ? 'bg-[#27d4ba]' : 'bg-red-500'}`}></div>
+                  <span className={`text-xs font-semibold ${integration.moodle.connected ? 'text-[#27d4ba]' : 'text-red-500'}`}>{integration.moodle.connected ? 'CONNECTED' : 'DISCONNECTED'}</span>
                 </div>
               </div>
 
@@ -34,23 +52,23 @@ export default function DashboardPage() {
                   <Video className="w-5 h-5 text-blue-500" />
                   <div>
                     <div className="text-sm text-white font-medium">Zoom API</div>
-                    <div className="text-xs text-neutral-400">Video Platform</div>
+                    <div className="text-xs text-neutral-400">Plataforma Externa</div>
                   </div>
                 </div>
                 <div className="flex items-center gap-2">
-                  <div className="w-2 h-2 bg-white rounded-full"></div>
-                  <span className="text-xs text-white">CONNECTED</span>
+                  <div className={`w-2 h-2 rounded-full animate-pulse ${integration.zoom.connected ? 'bg-[#27d4ba]' : 'bg-red-500'}`}></div>
+                  <span className={`text-xs font-semibold ${integration.zoom.connected ? 'text-[#27d4ba]' : 'text-red-500'}`}>{integration.zoom.connected ? 'CONNECTED' : 'DISCONNECTED'}</span>
                 </div>
               </div>
 
               <div className="grid grid-cols-2 gap-4 mt-6">
                 <div className="text-center">
-                  <div className="text-2xl font-bold text-white font-mono">247</div>
-                  <div className="text-xs text-neutral-500">Active Courses</div>
+                  <div className="text-2xl font-bold text-white font-mono">{indicators.activeCourses}</div>
+                  <div className="text-xs text-neutral-500">Cursos Activos</div>
                 </div>
                 <div className="text-center">
-                  <div className="text-2xl font-bold text-white font-mono">1,834</div>
-                  <div className="text-xs text-neutral-500">Students</div>
+                  <div className="text-2xl font-bold text-white font-mono">{indicators.users.toLocaleString()}</div>
+                  <div className="text-xs text-neutral-500">Usuarios</div>
                 </div>
               </div>
             </div>
@@ -60,28 +78,28 @@ export default function DashboardPage() {
         {/* Recent Automations */}
         <Card className="lg:col-span-4 bg-neutral-900 border-neutral-700">
           <CardHeader className="pb-3">
-            <CardTitle className="text-sm font-medium text-neutral-300 tracking-wider">RECENT AUTOMATIONS</CardTitle>
+            <CardTitle className="text-sm font-medium text-neutral-300 tracking-wider">AUTOMATIZACIONES RECIENTES</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="space-y-3 max-h-80 overflow-y-auto">
               {[
                 {
                   time: "17/06/2025 14:25",
-                  action: "Created Zoom meeting for",
-                  course: "Advanced Mathematics",
-                  status: "success",
+                  action: "Sesiones de Zoom para",
+                  course: "Matemáticas Avanzadas",
+                  status: "ejecutado",
                 },
                 {
                   time: "17/06/2025 14:20",
                   action: "Enrolled 23 students in",
                   course: "Physics Lab",
-                  status: "success",
+                  status: "ejecutado",
                 },
                 {
                   time: "17/06/2025 14:15",
                   action: "Updated meeting link for",
                   course: "Chemistry Basics",
-                  status: "success",
+                  status: "ejecutado",
                 },
                 {
                   time: "17/06/2025 14:10",
@@ -93,7 +111,7 @@ export default function DashboardPage() {
                   time: "17/06/2025 14:05",
                   action: "Synchronized grades for",
                   course: "Computer Science",
-                  status: "success",
+                  status: "ejecutado",
                 },
               ].map((log, index) => (
                 <div
@@ -105,7 +123,7 @@ export default function DashboardPage() {
                     {log.action} <span className="text-[#27d4ba] font-medium">{log.course}</span>
                     <span
                       className={`ml-2 px-2 py-1 rounded text-xs ${
-                        log.status === "success" ? "bg-white/20 text-white" : "bg-red-500/20 text-red-500"
+                        log.status === "ejecutado" ? "bg-[#27d469]/20 text-[#27d469] font-semibold" : "bg-red-500/20 text-red-500"
                       }`}
                     >
                       {log.status.toUpperCase()}
@@ -204,7 +222,7 @@ export default function DashboardPage() {
               <div className="absolute top-4 right-4 space-y-1">
                 <div className="flex items-center gap-2 text-xs">
                   <div className="w-3 h-0.5 bg-[#27d4ba]"></div>
-                  <span className="text-neutral-400">Success Rate</span>
+                  <span className="text-neutral-400">ejecutado Rate</span>
                 </div>
                 <div className="flex items-center gap-2 text-xs">
                   <div className="w-3 h-0.5 bg-blue-500 border-dashed"></div>
@@ -241,7 +259,7 @@ export default function DashboardPage() {
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
                   <TrendingUp className="w-4 h-4 text-neutral-400" />
-                  <span className="text-xs text-neutral-400">Success Rate</span>
+                  <span className="text-xs text-neutral-400">ejecutado Rate</span>
                 </div>
                 <span className="text-sm text-white font-mono">98.7%</span>
               </div>

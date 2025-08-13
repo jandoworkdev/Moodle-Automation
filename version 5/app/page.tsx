@@ -113,17 +113,15 @@ export default function LMSAutomationDashboard() {
         <div className="p-4">
           <div className="flex items-center justify-between mb-8">
             <div className={`${sidebarCollapsed ? "hidden" : "block"}`}>
-              <h1 className="text-[#27d4ba] font-bold text-lg tracking-wider">LMS AUTOMATION</h1>
+              <h1 className="text-[#27d4ba] font-bold text-lg tracking-wider">UAL - AUTOMATE</h1>
               <p className="text-neutral-500 text-xs">Moodle 4.5 + Zoom API</p>
             </div>
             <Button
               variant="ghost"
               size="icon"
-              onClick={() => setSidebarCollapsed(!sidebarCollapsed)}
-              className="text-neutral-400 hover:text-[#27d4ba]"
-            >
+              onClick={() => setSidebarCollapsed(!sidebarCollapsed)}>
               <ChevronRight
-                className={`w-4 h-4 sm:w-5 sm:h-5 transition-transform ${sidebarCollapsed ? "" : "rotate-180"}`}
+                className={`w-5 h-5 sm:w-5 sm:h-5 transition-transform ${sidebarCollapsed ? "" : "rotate-180"}`}
               />
             </Button>
           </div>
@@ -217,7 +215,7 @@ export default function LMSAutomationDashboard() {
         <div className="h-16 bg-neutral-800 border-b border-neutral-700 flex items-center justify-between px-6">
           <div className="flex items-center gap-4">
             <div className="text-sm text-neutral-400">
-              LMS AUTOMATION / <span className="text-[#27d4ba]">DASHBOARD</span>
+              LMS AUTOMATE / <span className="text-[#27d4ba]">DASHBOARD</span>
             </div>
           </div>
           <div className="flex items-center gap-4">
