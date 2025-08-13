@@ -21,11 +21,15 @@ let status = {
     version: '4.5',
     lastCheck: new Date().toISOString(),
     url: config.moodle.url,
+    responseTime: null,
+    error: null,
   },
   zoom: {
     connected: false,
     lastCheck: new Date().toISOString(),
     apiKey: config.zoom.apiKey ? 'SET' : 'NOT_SET',
+    responseTime: null,
+    error: null,
   },
 };
 
@@ -54,6 +58,7 @@ app.post('/api/check-moodle', async (req, res) => {
   status.moodle.lastCheck = result.lastCheck;
   status.moodle.version = result.version || status.moodle.version;
   status.moodle.error = result.error;
+  status.moodle.responseTime = result.responseTime;
   res.json(result);
 });
 
@@ -63,6 +68,7 @@ app.post('/api/check-zoom', async (req, res) => {
   status.zoom.connected = result.connected;
   status.zoom.lastCheck = result.lastCheck;
   status.zoom.error = result.error;
+  status.zoom.responseTime = result.responseTime;
   res.json(result);
 });
 

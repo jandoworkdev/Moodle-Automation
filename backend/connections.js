@@ -11,13 +11,15 @@ async function checkMoodleConnection() {
       wsfunction: 'core_webservice_get_site_info',
       moodlewsrestformat: 'json',
     };
+    const start = Date.now();
     const response = await axios.get(url, { params, timeout: 5000 });
+    const responseTime = Date.now() - start;
     if (response.data && response.data.siteid) {
-      return { connected: true, version: response.data.release || 'unknown', lastCheck: new Date().toISOString() };
+      return { connected: true, version: response.data.release || 'unknown', lastCheck: new Date().toISOString(), responseTime };
     }
-    return { connected: false, error: response.data, lastCheck: new Date().toISOString() };
+    return { connected: false, error: response.data, lastCheck: new Date().toISOString(), responseTime };
   } catch (error) {
-    return { connected: false, error: error.message, lastCheck: new Date().toISOString() };
+    return { connected: false, error: error.message, lastCheck: new Date().toISOString(), responseTime: null };
   }
 }
 
@@ -30,18 +32,20 @@ async function checkZoomConnection() {
       grant_type: 'account_credentials',
       account_id: config.zoom.accountId,
     });
+    const start = Date.now();
     const response = await axios.post(tokenUrl + '?' + params.toString(), null, {
       headers: {
         Authorization: `Basic ${credentials}`,
       },
       timeout: 5000,
     });
+    const responseTime = Date.now() - start;
     if (response.data && response.data.access_token) {
-      return { connected: true, lastCheck: new Date().toISOString() };
+      return { connected: true, lastCheck: new Date().toISOString(), responseTime };
     }
-    return { connected: false, error: response.data, lastCheck: new Date().toISOString() };
+    return { connected: false, error: response.data, lastCheck: new Date().toISOString(), responseTime };
   } catch (error) {
-    return { connected: false, error: error.message, lastCheck: new Date().toISOString() };
+    return { connected: false, error: error.message, lastCheck: new Date().toISOString(), responseTime: null };
   }
 }
 

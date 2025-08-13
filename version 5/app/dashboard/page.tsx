@@ -8,8 +8,8 @@ import { BookOpen, Video, Users, Calendar, TrendingUp, Activity } from "lucide-r
 
 export default function DashboardPage() {
   const [integration, setIntegration] = useState({
-    moodle: { connected: false, version: '', lastCheck: '', error: null },
-    zoom: { connected: false, lastCheck: '', error: null },
+    moodle: { connected: false, version: '', lastCheck: '', error: null, responseTime: null },
+    zoom: { connected: false, lastCheck: '', error: null, responseTime: null },
   });
   const [indicators, setIndicators] = useState({ activeCourses: 0, users: 0 });
 
@@ -42,8 +42,17 @@ export default function DashboardPage() {
                   </div>
                 </div>
                 <div className="flex items-center gap-2">
-                  <div className={`w-2 h-2 rounded-full animate-pulse ${integration.moodle.connected ? 'bg-[#27d4ba]' : 'bg-red-500'}`}></div>
-                  <span className={`text-xs font-semibold ${integration.moodle.connected ? 'text-[#27d4ba]' : 'text-red-500'}`}>{integration.moodle.connected ? 'CONNECTED' : 'DISCONNECTED'}</span>
+                  {integration.moodle.version === '' ? (
+                    <>
+                      <div className="w-2 h-2 rounded-full bg-neutral-400 animate-pulse"></div>
+                      <span className="text-xs font-semibold text-neutral-400">PENDIENTE</span>
+                    </>
+                  ) : (
+                    <>
+                      <div className={`w-2 h-2 rounded-full animate-pulse ${integration.moodle.connected ? 'bg-[#27d4ba]' : 'bg-red-500'}`}></div>
+                      <span className={`text-xs font-semibold ${integration.moodle.connected ? 'text-[#27d4ba]' : 'text-red-500'}`}>{integration.moodle.connected ? 'CONNECTED' : 'DISCONNECTED'}</span>
+                    </>
+                  )}
                 </div>
               </div>
 
@@ -56,19 +65,30 @@ export default function DashboardPage() {
                   </div>
                 </div>
                 <div className="flex items-center gap-2">
-                  <div className={`w-2 h-2 rounded-full animate-pulse ${integration.zoom.connected ? 'bg-[#27d4ba]' : 'bg-red-500'}`}></div>
-                  <span className={`text-xs font-semibold ${integration.zoom.connected ? 'text-[#27d4ba]' : 'text-red-500'}`}>{integration.zoom.connected ? 'CONNECTED' : 'DISCONNECTED'}</span>
+                  {integration.zoom.lastCheck === '' ? (
+                    <>
+                      <div className="w-2 h-2 rounded-full bg-neutral-400 animate-pulse"></div>
+                      <span className="text-xs font-semibold text-neutral-400">PENDIENTE</span>
+                    </>
+                  ) : (
+                    <>
+                      <div className={`w-2 h-2 rounded-full animate-pulse ${integration.zoom.connected ? 'bg-[#27d4ba]' : 'bg-red-500'}`}></div>
+                      <span className={`text-xs font-semibold ${integration.zoom.connected ? 'text-[#27d4ba]' : 'text-red-500'}`}>{integration.zoom.connected ? 'CONNECTED' : 'DISCONNECTED'}</span>
+                    </>
+                  )}
                 </div>
               </div>
 
-              <div className="grid grid-cols-2 gap-4 mt-6">
-                <div className="text-center">
-                  <div className="text-2xl font-bold text-white font-mono">{indicators.activeCourses}</div>
-                  <div className="text-xs text-neutral-500">Cursos Activos</div>
-                </div>
-                <div className="text-center">
-                  <div className="text-2xl font-bold text-white font-mono">{indicators.users.toLocaleString()}</div>
-                  <div className="text-xs text-neutral-500">Usuarios</div>
+              <div className="pt-4">
+                <div className="grid grid-cols-2 gap-4 mt-6">
+                  <div className="text-center">
+                    <div className="text-2xl font-bold text-white font-mono">{indicators.activeCourses}</div>
+                    <div className="text-xs text-neutral-500">Cursos Activos</div>
+                  </div>
+                  <div className="text-center">
+                    <div className="text-2xl font-bold text-white font-mono">{indicators.users.toLocaleString()}</div>
+                    <div className="text-xs text-neutral-500">Usuarios</div>
+                  </div>
                 </div>
               </div>
             </div>
@@ -122,9 +142,8 @@ export default function DashboardPage() {
                   <div className="text-white">
                     {log.action} <span className="text-[#27d4ba] font-medium">{log.course}</span>
                     <span
-                      className={`ml-2 px-2 py-1 rounded text-xs ${
-                        log.status === "ejecutado" ? "bg-[#27d469]/20 text-[#27d469] font-semibold" : "bg-red-500/20 text-red-500"
-                      }`}
+                      className={`ml-2 px-2 py-1 rounded text-xs ${log.status === "ejecutado" ? "bg-[#27d469]/20 text-[#27d469] font-semibold" : "bg-red-500/20 text-red-500"
+                        }`}
                     >
                       {log.status.toUpperCase()}
                     </span>
@@ -135,36 +154,68 @@ export default function DashboardPage() {
           </CardContent>
         </Card>
 
-        {/* API Connection Monitor */}
+        {/* MONITOREO DE CONEXIÓN API */}
         <Card className="lg:col-span-4 bg-neutral-900 border-neutral-700">
           <CardHeader className="pb-3">
             <CardTitle className="text-sm font-medium text-neutral-300 tracking-wider">
-              API CONNECTION MONITOR
+              MONITOREO DE CONEXIÓN API
             </CardTitle>
           </CardHeader>
           <CardContent className="flex flex-col items-center">
             {/* Connection Visualization */}
             <div className="relative w-32 h-32 mb-4">
-              <div className="absolute inset-0 border-2 border-[#27d4ba] rounded-full opacity-60 animate-pulse"></div>
-              <div className="absolute inset-2 border border-white rounded-full opacity-40"></div>
-              <div className="absolute inset-4 border border-blue-500 rounded-full opacity-20"></div>
-              {/* Connection lines */}
-              <div className="absolute inset-0 flex items-center justify-center">
-                <div className="w-full h-px bg-white opacity-30"></div>
-              </div>
-              <div className="absolute inset-0 flex items-center justify-center">
-                <div className="w-px h-full bg-white opacity-30"></div>
-              </div>
+              {/* Cyberpunk Radar SVG ajustado */}
+              {/* Fondo circular y recorte */}
+              <div className="absolute inset-0 w-full h-full rounded-full overflow-hidden bg-black"></div>
+              <svg className="absolute inset-0 w-full h-full" viewBox="0 0 128 128">
+                {/* Outer glowing ring */}
+                <circle cx="64" cy="64" r="60" fill="none" stroke="#27d4ba" strokeWidth="3" opacity="0.7" filter="url(#glow)" />
+                {/* Inner rings */}
+                <circle cx="64" cy="64" r="44" fill="none" stroke="#3b82f6" strokeWidth="1" opacity="0.3" />
+                <circle cx="64" cy="64" r="28" fill="none" stroke="#fff" strokeWidth="1" opacity="0.2" />
+                {/* Cross lines */}
+                <line x1="64" y1="4" x2="64" y2="124" stroke="#fff" strokeWidth="1" opacity="0.15" />
+                <line x1="4" y1="64" x2="124" y2="64" stroke="#fff" strokeWidth="1" opacity="0.15" />
+                {/* Blips (ajustados a la circunferencia) */}
+                <circle cx="108" cy="64" r="2" fill="#27d4ba" className="animate-pulse" />
+                <circle cx="64" cy="20" r="1.5" fill="#3b82f6" className="animate-pulse" />
+                <circle cx="90" cy="100" r="1.2" fill="#fff" className="animate-pulse" />
+              </svg>
+
+              <style jsx>{`
+                @keyframes cyber-scan {
+                  0% { background-position-y: 0; }
+                  100% { background-position-y: 8px; }
+                }
+                .animate-cyber-scan {
+                  animation: cyber-scan 0.5s linear infinite;
+                }
+              `}</style>
             </div>
 
             <div className="text-xs text-neutral-500 space-y-1 w-full font-mono">
               <div className="flex justify-between">
-                <span># API Status Monitor</span>
+                <span># Monitoreo</span>
               </div>
-              <div className="text-white">{"> [MOODLE] ::: Connected >> Response: 120ms"}</div>
-              <div className="text-blue-500">{"> [ZOOM] ::: Connected >> Response: 89ms"}</div>
-              <div className="text-white">{"> SYNC STATUS: ACTIVE"}</div>
-              <div className="text-neutral-400">{"> Last sync: 17/06/2025 14:30:15 UTC"}</div>
+              <div className={integration.moodle.connected ? "text-white" : "text-red-500"}>
+                {`> [MOODLE] ::: ${integration.moodle.version === '' ? 'Pendiente' : (integration.moodle.connected ? 'Connected' : 'Disconnected')}`}
+                {` | ${integration.moodle.responseTime !== undefined && integration.moodle.responseTime !== null ? integration.moodle.responseTime + ' ms' : '- ms'}`}
+              </div>
+              <div className={integration.zoom.connected ? "text-blue-500" : "text-red-500"}>
+                {`> [ZOOM] ::: ${integration.zoom.lastCheck === '' ? 'Pendiente' : (integration.zoom.connected ? 'Connected' : 'Disconnected')}`}
+                {` | ${integration.zoom.responseTime !== undefined && integration.zoom.responseTime !== null ? integration.zoom.responseTime + ' ms' : '- ms'}`}
+              </div>
+              <div className="text-white">{`> SYNC STATUS: ${(integration.moodle.connected && integration.zoom.connected) ? 'ACTIVE' : 'INACTIVE'}`}</div>
+              <div className="text-neutral-400">
+                {(() => {
+                  const raw = integration.moodle.lastCheck || integration.zoom.lastCheck || null;
+                  if (!raw) return '> Sincronización: --- [Hora Lima, Perú]';
+                  const date = new Date(raw);
+                  date.setHours(date.getHours() - 5);
+                  const lima = date.toISOString().replace('T', ' ').replace('Z', '');
+                  return `> Sincronización: ${lima} [Hora Lima, Perú]`;
+                })()}
+              </div>
             </div>
           </CardContent>
         </Card>
@@ -179,14 +230,14 @@ export default function DashboardPage() {
           <CardContent>
             <div className="h-48 relative">
               {/* Chart Grid */}
-              <div className="absolute inset-0 grid grid-cols-8 grid-rows-6 opacity-20">
+              <div className="absolute inset-0 grid grid-cols-8 grid-rows-6 opacity-20 pl-10">
                 {Array.from({ length: 48 }).map((_, i) => (
                   <div key={i} className="border border-neutral-700"></div>
                 ))}
               </div>
 
               {/* Chart Lines */}
-              <svg className="absolute inset-0 w-full h-full">
+              <svg className="absolute inset-0 w-full h-full pl-10">
                 <polyline
                   points="0,120 50,100 100,110 150,90 200,95 250,85 300,100 350,80"
                   fill="none"
@@ -203,7 +254,7 @@ export default function DashboardPage() {
               </svg>
 
               {/* Y-axis labels */}
-              <div className="absolute left-0 top-0 h-full flex flex-col justify-between text-xs text-neutral-500 -ml-8 font-mono">
+              <div className="absolute left-0 top-0 h-full flex flex-col justify-between text-xs text-neutral-500 -ml-8 font-mono pl-7">
                 <span>100%</span>
                 <span>75%</span>
                 <span>50%</span>
@@ -211,7 +262,7 @@ export default function DashboardPage() {
               </div>
 
               {/* X-axis labels */}
-              <div className="absolute bottom-0 left-0 w-full flex justify-between text-xs text-neutral-500 -mb-6 font-mono">
+              <div className="absolute bottom-0 left-0 w-full flex justify-between text-xs text-neutral-500 -mb-6 font-mono pl-10">
                 <span>00:00</span>
                 <span>06:00</span>
                 <span>12:00</span>
