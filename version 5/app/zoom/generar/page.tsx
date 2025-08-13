@@ -240,7 +240,7 @@ export default function GeneratePage() {
           </Button>
           {showUploadModal && (
             <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm">
-              <div className="bg-neutral-900 border border-neutral-700 rounded-lg shadow-lg w-full max-w-xs p-6 relative mx-2">
+              <div className="bg-neutral-900 border border-neutral-800 rounded-lg shadow-lg w-full max-w-md p-7 relative mx-2">
                 <button
                   className="absolute top-2 right-2 text-neutral-400 hover:text-white text-xl"
                   onClick={() => {
@@ -253,17 +253,26 @@ export default function GeneratePage() {
                 >
                   ×
                 </button>
-                <h2 className="text-lg font-bold text-white mb-4 flex items-center gap-2">
+                <h2 className="text-lg font-bold text-white mb-6 flex items-center gap-2">
                   <CloudDownload className="w-5 h-5 text-blue-500" />
-                  Subir archivo CSV de sesiones
+                  Carga el archivo de sesiones.csv
                 </h2>
                 <form onSubmit={handleCsvUpload} className="space-y-4">
-                  <input
-                    type="file"
-                    accept=".csv"
-                    onChange={handleFileChange}
-                    className="block w-full text-sm text-neutral-300 file:mr-4 file:py-2 file:px-4 file:rounded file:border-0 file:text-sm file:font-semibold file:bg-blue-500 file:text-white hover:file:bg-blue-600"
-                  />
+                  <div className="flex items-center gap-2">
+                    <label htmlFor="csv-upload" className="bg-blue-500 hover:bg-blue-600 text-white font-medium py-2 px-4 rounded cursor-pointer transition-colors">
+                      Seleccionar archivo
+                    </label>
+                    <input
+                      id="csv-upload"
+                      type="file"
+                      accept=".csv"
+                      onChange={handleFileChange}
+                      className="hidden"
+                    />
+                    <span className="text-neutral-300 text-sm truncate max-w-[140px]">
+                      {csvFile ? csvFile.name : "Ningún archivo seleccionado"}
+                    </span>
+                  </div>
                   {csvError && <div className="text-red-500 text-xs">{csvError}</div>}
                   <div className="flex justify-end gap-2">
                     <Button

@@ -2,6 +2,7 @@
 
 
 import { useEffect, useState } from "react"
+import { toast } from "@/hooks/use-toast"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { BookOpen, Video, Users, Calendar, TrendingUp, Activity } from "lucide-react"
 
@@ -15,11 +16,31 @@ export default function DashboardPage() {
 
   useEffect(() => {
     fetch("http://localhost:4000/api/integration-status")
-      .then((res) => res.json())
-      .then((data) => setIntegration(data));
+      .then((res) => {
+        if (!res.ok) throw new Error("Network response was not ok");
+        return res.json();
+      })
+      .then((data) => setIntegration(data))
+      .catch(() => {
+        toast({
+          title: "Conexión requerida",
+          description: "No se pudo conectar con el backend. Por favor, asegúrate de que los servicios esté en funcionamiento.",
+          variant: "destructive",
+        });
+      });
     fetch("http://localhost:4000/api/indicators")
-      .then((res) => res.json())
-      .then((data) => setIndicators(data));
+      .then((res) => {
+        if (!res.ok) throw new Error("Network response was not ok");
+        return res.json();
+      })
+      .then((data) => setIndicators(data))
+      .catch(() => {
+        toast({
+          title: "Conexión requerida",
+          description: "No se pudo conectar con el backend. Por favor, asegúrate de que el servidor esté en funcionamiento.",
+          variant: "destructive",
+        });
+      });
   }, []);
 
   return (
