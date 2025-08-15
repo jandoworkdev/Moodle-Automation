@@ -72,7 +72,7 @@ export default function LMSAutomationDashboard() {
 
   const [expandedGroups, setExpandedGroups] = useState(["lms", "zoom"])
 
-  const toggleGroup = (groupId) => {
+  const toggleGroup = (groupId: string) => {
     setExpandedGroups((prev) => (prev.includes(groupId) ? prev.filter((id) => id !== groupId) : [...prev, groupId]))
   }
 
@@ -170,7 +170,7 @@ export default function LMSAutomationDashboard() {
                     </button>
                     {!sidebarCollapsed && expandedGroups.includes(item.id) && (
                       <div className="ml-4 mt-2 space-y-1">
-                        {item.children.map((child) => (
+                        {item.children?.map((child) => (
                           <button
                             key={child.id}
                             onClick={() => setActiveSection(child.id)}
@@ -193,10 +193,10 @@ export default function LMSAutomationDashboard() {
           </nav>
 
           {!sidebarCollapsed && (
-            <div className="mt-8 p-4 bg-neutral-800 border border-neutral-700 rounded">
+            <div className="mt-2 p-4 bg-neutral-800 border border-neutral-700 rounded">
               <div className="flex items-center gap-2 mb-2">
-                <div className="w-2 h-2 bg-white rounded-full animate-pulse"></div>
-                <span className="text-xs text-white">SYSTEM ONLINE</span>
+                <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
+                <span className="text-xs text-green-500">SYSTEM ONLINE</span>
               </div>
               <div className="text-xs text-neutral-500">
                 <div>UPTIME: 99.8%</div>
