@@ -6,6 +6,13 @@ import { toast } from "@/hooks/use-toast"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { BookOpen, Video, Users, Calendar, TrendingUp, Activity } from "lucide-react"
 
+type Log = {
+  time: string;
+  action: string;
+  category: string;
+  status: string;
+  tipo?: string;
+};
 
 export default function DashboardPage() {
   const [integration, setIntegration] = useState({
@@ -13,6 +20,31 @@ export default function DashboardPage() {
     zoom: { connected: false, lastCheck: '', error: null, responseTime: null },
   });
   const [indicators, setIndicators] = useState({ activeCourses: 0, users: 0 });
+  // 1. Aquí declaras la constante logs
+  const logs: Log[] = [
+    {
+      time: "17/08/2025 14:25",
+      action: "Recepción de Programación",
+      category: "2025-II | AGOSTO",
+      status: "recibido",
+      tipo: "documento",
+    },
+    {
+      time: "16/08/2025 14:10",
+      action: "Generación de Sesiones",
+      category: "2025-II | AGOSTO",
+      status: "error",
+      tipo: "zoom",
+    },
+    {
+      time: "15/06/2025 14:05",
+      action: "Recolección de Data",
+      category: "ETL - Power Bi",
+      status: "ejecutado",
+      tipo: "moodle",
+    },
+  ];
+  const [selectedLog, setSelectedLog] = useState<Log | null>(null);
 
   useEffect(() => {
     fetch("http://localhost:4000/api/integration-status")
@@ -44,7 +76,7 @@ export default function DashboardPage() {
   }, []);
 
   return (
-    <div className="p-6 space-y-6">
+    <div className="p-6">
       {/* Main Dashboard Grid */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
         {/* ESTADO DE INTEGRACIÓN */}
@@ -116,60 +148,46 @@ export default function DashboardPage() {
           </CardContent>
         </Card>
 
-        {/* AUTOMATIZACIONES RECENTES */}
+        {/* HISTORIAL DE PROCESOS */}
         <Card className="lg:col-span-4 bg-neutral-900 border-neutral-700">
           <CardHeader className="pb-3">
-            <CardTitle className="text-sm font-medium text-neutral-300 tracking-wider">AUTOMATIZACIONES RECIENTES</CardTitle>
+            <CardTitle className="text-sm font-medium text-neutral-300 tracking-wider">HISTORIAL DE PROCESOS</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="space-y-3 max-h-80 overflow-y-auto">
-              {[
-                {
-                  time: "17/06/2025 14:25",
-                  action: "Sesiones de Zoom para",
-                  course: "Matemáticas Avanzadas",
-                  status: "ejecutado",
-                },
-                {
-                  time: "17/06/2025 14:20",
-                  action: "Enrolled 23 students in",
-                  course: "Physics Lab",
-                  status: "ejecutado",
-                },
-                {
-                  time: "17/06/2025 14:15",
-                  action: "Updated meeting link for",
-                  course: "Chemistry Basics",
-                  status: "ejecutado",
-                },
-                {
-                  time: "17/06/2025 14:10",
-                  action: "Failed to create meeting for",
-                  course: "Biology Advanced",
-                  status: "error",
-                },
-                {
-                  time: "17/06/2025 14:05",
-                  action: "Synchronized grades for",
-                  course: "Computer Science",
-                  status: "ejecutado",
-                },
-              ].map((log, index) => (
+              {/* 2. Aquí usas logs.map en vez de un array inline */}
+              {logs.map((log, index) => (
                 <div
                   key={index}
                   className="text-xs border-l-2 border-[#27d4ba] pl-3 hover:bg-neutral-800 p-2 rounded transition-colors"
+                  onClick={() => setSelectedLog(log)}
                 >
                   <div className="text-neutral-500 font-mono">{log.time}</div>
-                  <div className="text-white">
-                    {log.action} <span className="text-[#27d4ba] font-medium">{log.course}</span>
-                    <span
-                      className={`ml-2 px-2 py-1 rounded text-xs ${log.status === "ejecutado" ? "bg-[#27d469]/20 text-[#27d469] font-semibold" : "bg-red-500/20 text-red-500"
-                        }`}
-                    >
-                      {log.status.toUpperCase()}
-                    </span>
+                  <div className="flex flex-col gap-1">
+                    <div className="text-white flex items-center flex-wrap gap-1">
+                      {log.action} <span className="text-[#27d4ba] font-medium">{log.category}</span>
+                      {log.tipo && (
+                        <span className="ml-2 px-2 py-1 rounded text-xs bg-neutral-200 text-neutral-700 font-medium">
+                          {log.tipo.toUpperCase()}
+                        </span>
+                      )}
+                    </div>
+                    <div className="flex w-full mt-0.5">
+                      <span
+                        className={`px-2 py-1 rounded text-xs ${log.status === "ejecutado"
+                          ? "bg-[#27d469]/20 text-[#27d469] font-semibold"
+                          : log.status === "recibido"
+                            ? "bg-blue-500/20 text-blue-500 font-semibold"
+                            : "bg-red-500/20 text-red-500 font-semibold"
+                          }`}
+                        style={{ textAlign: 'left' }}
+                      >
+                        {log.status.toUpperCase()}
+                      </span>
+                    </div>
                   </div>
                 </div>
+
               ))}
             </div>
           </CardContent>
@@ -363,6 +381,59 @@ export default function DashboardPage() {
           </CardContent>
         </Card>
       </div>
+      {/* Aquí, después del grid, va el modal */}
+      {selectedLog && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+          <Card className="bg-neutral-900 border-neutral-700 w-full max-w-2xl max-h-[90vh] overflow-y-auto">
+            <CardHeader className="flex flex-row items-center justify-between">
+              <div>
+                <CardTitle className="text-xl font-bold text-white tracking-wider">
+                  {selectedLog.action}
+                </CardTitle>
+                <p className="text-sm text-neutral-400">
+                  {selectedLog.time} •
+                  <span className="inline text-[#27d4ba] font-medium">
+                    {` ${selectedLog.category}`}
+                  </span>
+                </p>
+              </div>
+              <button
+                onClick={() => setSelectedLog(null)}
+                className="text-neutral-400 hover:text-white text-2xl px-2"
+              >
+                ✕
+              </button>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div>
+                <h3 className="text-sm font-medium text-neutral-300 tracking-wider mb-2">ESTADO DEL PROCESO</h3>
+                <span className={`px-2 py-1 rounded text-xs ${selectedLog.status === "ejecutado"
+                  ? "bg-[#27d469]/20 text-[#27d469] font-semibold"
+                  : selectedLog.status === "recibido"
+                    ? "bg-blue-500/20 text-blue-500 font-semibold"
+                    : "bg-red-500/20 text-red-500 font-semibold"
+                  }`}>
+                  {selectedLog.status.toUpperCase()}
+                </span>
+              </div>
+              <div>
+                <h3 className="text-sm font-medium text-neutral-300 tracking-wider mb-2">DETALLES</h3>
+                <div className="space-y-2 text-sm">
+                  <div className="flex justify-between">
+                    <span className="text-neutral-400">Categoría:</span>
+                    <span className="text-white font-mono">{selectedLog.category}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-neutral-400">Tipo:</span>
+                    <span className="text-white font-mono">{selectedLog.tipo?.toUpperCase()}</span>
+                  </div>
+                  {/* Agrega aquí más detalles si tu log tiene más campos */}
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+      )}
     </div>
   )
 }
