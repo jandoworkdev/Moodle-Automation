@@ -425,36 +425,79 @@ class App(ttk.Frame):
 
         top = ttk.Frame(card)
         top.pack(fill=tk.X)
-        btn_sel = ttk.Button(top, text="📂 Seleccionar archivo…")
+
+        # --- Widgets para selección de archivo, codificación y delimitador ---
+        self.ingesta_file_path = tk.StringVar()
+        self.ingesta_encoding = tk.StringVar(value="utf-8")
+        self.ingesta_sep = tk.StringVar(value=",")
+
+        def on_select_file():
+            file_path = filedialog.askopenfilename(
+                title="Seleccionar archivo CSV",
+                filetypes=[("Archivos CSV", "*.csv"), ("Todos los archivos", "*.*")]
+            )
+            if file_path:
+                self.ingesta_file_path.set(file_path)
+                lbl_file.config(text=file_path)
+
+        btn_sel = ttk.Button(top, text="📂 Seleccionar archivo…", command=on_select_file)
         btn_sel.pack(side=tk.LEFT)
         Tooltip(btn_sel, "Abrir CSV o Excel")
+        lbl_file = ttk.Label(top, text="", style="Muted.TLabel")
+        lbl_file.pack(side=tk.LEFT, padx=(8,0))
 
         ttk.Label(top, text="Codificación: ").pack(side=tk.LEFT, padx=(12, 2))
-        cb_enc = ttk.Combobox(top, values=["utf-8", "latin-1", "utf-16"], width=12)
-        cb_enc.current(0)
+        cb_enc = ttk.Combobox(top, textvariable=self.ingesta_encoding, values=["utf-8", "latin-1", "utf-16"], width=12, state="readonly")
         cb_enc.pack(side=tk.LEFT)
 
         ttk.Label(top, text="Delimitador: ").pack(side=tk.LEFT, padx=(12, 2))
-        cb_del = ttk.Combobox(top, values=[", (coma)", "; (punto y coma)", "\\t (tab)", "| (pipe)"], width=18)
-        cb_del.current(0)
+        cb_del = ttk.Combobox(top, textvariable=self.ingesta_sep, values=[", (coma)", "; (punto y coma)", "\\t (tab)", "| (pipe)"], width=18, state="readonly")
         cb_del.pack(side=tk.LEFT)
+
+        # Botón para cargar y mostrar datos
+        def on_load_csv():
+            file_path = self.ingesta_file_path.get()
+            encoding = self.ingesta_encoding.get()
+            sep_map = {", (coma)": ",", "; (punto y coma)": ";", "\\t (tab)": "\t", "| (pipe)": "|"}
+            sep = sep_map.get(self.ingesta_sep.get(), ",")
+            if not file_path:
+                messagebox.showwarning("Archivo no seleccionado", "Por favor selecciona un archivo CSV.")
+                return
+            try:
+                df = pd.read_csv(file_path, encoding=encoding, sep=sep)
+            except Exception as e:
+                messagebox.showerror("Error al abrir CSV", f"No se pudo abrir el archivo:\n{e}")
+                return
+            self.df = df
+            self._update_detected_columns(df)
+            self._show_csv_preview_modal(df, file_path, encoding=encoding, sep=sep)
+
+        btn_load = ttk.Button(top, text="👀 Previsualizar datos", style="Accent.TButton", command=on_load_csv)
+        btn_load.pack(side=tk.LEFT, padx=(16,0))
 
         ttk.Separator(card).pack(fill=tk.X, pady=12)
 
+        # --- Paneles de mapeo (pueden actualizarse tras cargar CSV) ---
         map_frame = ttk.Frame(card)
         map_frame.pack(fill=tk.BOTH, expand=True)
 
         left = ttk.Frame(map_frame)
         left.pack(side=tk.LEFT, fill=tk.BOTH, expand=True, padx=(0, 8))
         ttk.Label(left, text="Columnas detectadas").pack(anchor="w")
-        src_cols = ttk.Treeview(left, columns=("col",), show="headings", height=12)
-        src_cols.heading("col", text="Nombre")
-        src_cols.tag_configure("oddrow", background="#FFFFFF")
-        src_cols.tag_configure("evenrow", background="#F8FAFC")
-        for i in range(10):
-            tag = "evenrow" if i % 2 == 0 else "oddrow"
-            src_cols.insert("", "end", values=(f"columna_{i+1}",), tags=(tag,))
-        src_cols.pack(fill=tk.BOTH, expand=True)
+        self.src_cols = ttk.Treeview(left, columns=("col",), show="headings", height=8)
+        self.src_cols.heading("col", text="Nombre")
+        self.src_cols.column("col", width=50, anchor="w")
+        self.src_cols.tag_configure("oddrow", background="#FFFFFF")
+        self.src_cols.tag_configure("evenrow", background="#F8FAFC")
+        self.src_cols.pack(fill=tk.BOTH, expand=True)
+
+        # Función para actualizar las columnas detectadas tras cargar un CSV
+        def _update_detected_columns(df):
+            self.src_cols.delete(*self.src_cols.get_children())
+            for i, col in enumerate(df.columns):
+                tag = "evenrow" if i % 2 == 0 else "oddrow"
+                self.src_cols.insert("", "end", values=(col,), tags=(tag,))
+        self._update_detected_columns = _update_detected_columns
 
         center = ttk.Frame(map_frame)
         center.pack(side=tk.LEFT, fill=tk.Y)
