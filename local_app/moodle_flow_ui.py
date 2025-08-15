@@ -56,9 +56,9 @@ class Tooltip:
 class App(ttk.Frame):
     def __init__(self, master: tk.Tk):
         super().__init__(master)
-        self.master.title(APP_TITLE)
-        self.master.geometry(APP_GEOMETRY)
-        self.master.minsize(1100, 700)
+        self.master.winfo_toplevel().title(APP_TITLE)
+        self.master.winfo_toplevel().geometry(APP_GEOMETRY)
+        self.master.winfo_toplevel().minsize(1100, 700)
         self._configure_style()
         self.df = None  # DataFrame para el CSV cargado
         self._configure_open_csv_callback = None
@@ -212,7 +212,7 @@ class App(ttk.Frame):
         menubar.add_cascade(label="Configuración", menu=cfg_menu)
         menubar.add_cascade(label="Ayuda", menu=help_menu)
 
-        self.master.config(menu=menubar)
+        self.master.winfo_toplevel().config(menu=menubar)
 
     def _create_toolbar(self):
         bar = ttk.Frame(self.master, padding=(12, 8))
@@ -271,7 +271,7 @@ class App(ttk.Frame):
             messagebox.showerror("Error al abrir CSV", f"No se pudo abrir el archivo:\n{e}")
             return
         self.df = df
-        self._show_csv_preview_modal(df, file_path, encoding="utf-8", sep=",")
+        self._show_csv_preview_modal(df, file_path)
 
     def _show_csv_preview_modal(self, df, file_path):
         preview_rows = min(10, len(df))
@@ -280,7 +280,7 @@ class App(ttk.Frame):
 
         modal = tk.Toplevel(self.master)
         modal.title("Previsualización de CSV")
-        modal.transient(self.master)
+        modal.transient(self.master.winfo_toplevel())
         modal.grab_set()
         modal.geometry("1200x800")
 
@@ -470,7 +470,7 @@ class App(ttk.Frame):
                 return
             self.df = df
             self._update_detected_columns(df)
-            self._show_csv_preview_modal(df, file_path, encoding=encoding, sep=sep)
+            self._show_csv_preview_modal(df, file_path)
 
         btn_load = ttk.Button(top, text="👀 Previsualizar datos", style="Accent.TButton", command=on_load_csv)
         btn_load.pack(side=tk.LEFT, padx=(16,0))
