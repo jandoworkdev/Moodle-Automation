@@ -1,5 +1,8 @@
+
 import tkinter as tk
 from tkinter import ttk
+from tkinter import filedialog, messagebox
+import pandas as pd
 
 APP_TITLE = "UAL • Workflow Moodle (Demo UI)"
 APP_GEOMETRY = "1280x800"
@@ -57,15 +60,14 @@ class App(ttk.Frame):
         self.master.geometry(APP_GEOMETRY)
         self.master.minsize(1100, 700)
         self._configure_style()
-
+        self.df = None  # DataFrame para el CSV cargado
+        self._configure_open_csv_callback = None
         # Header decorativo superior
         self._create_headerbar()
-
         self._create_menu()
         self._create_toolbar()
         self._create_body()
         self._create_statusbar()
-
         self._bind_shortcuts()
 
     # -------------------- UI Building Blocks --------------------
@@ -172,7 +174,7 @@ class App(ttk.Frame):
 
         file_menu = tk.Menu(menubar, tearoff=0)
         file_menu.add_command(label="🆕 Nuevo", accelerator="Ctrl+N")
-        file_menu.add_command(label="📂 Abrir CSV…", accelerator="Ctrl+O")
+        file_menu.add_command(label="📂 Abrir CSV…", accelerator="Ctrl+O", command=self._on_open_csv)
         file_menu.add_separator()
         file_menu.add_command(label="💾 Guardar Reporte…", accelerator="Ctrl+S")
         file_menu.add_separator()
@@ -216,7 +218,7 @@ class App(ttk.Frame):
         bar = ttk.Frame(self.master, padding=(12, 8))
         bar.pack(side=tk.TOP, fill=tk.X)
 
-        btn_open = ttk.Button(bar, text="📂 Abrir CSV", style="Tool.TButton")
+        btn_open = ttk.Button(bar, text="📂 Abrir CSV", style="Tool.TButton", command=self._on_open_csv)
         btn_open.pack(side=tk.LEFT)
         Tooltip(btn_open, "Selecciona un archivo CSV/Excel")
 
@@ -255,6 +257,74 @@ class App(ttk.Frame):
         btn_moodle = ttk.Button(bar, text="🌐 Conectar Moodle", style="Tool.TButton")
         btn_moodle.pack(side=tk.RIGHT, padx=6)
         Tooltip(btn_moodle, "Configura el token y endpoint de Moodle")
+
+    def _on_open_csv(self):
+        file_path = filedialog.askopenfilename(
+            title="Seleccionar archivo CSV",
+            filetypes=[("Archivos CSV", "*.csv"), ("Todos los archivos", "*.*")]
+        )
+        if not file_path:
+            return
+        try:
+            df = pd.read_csv(file_path, encoding="utf-8")
+        except Exception as e:
+            messagebox.showerror("Error al abrir CSV", f"No se pudo abrir el archivo:\n{e}")
+            return
+        self.df = df
+        self._show_csv_preview_modal(df, file_path, encoding="utf-8", sep=",")
+
+    def _show_csv_preview_modal(self, df, file_path):
+        preview_rows = min(10, len(df))
+        preview_cols = list(df.columns)
+        preview_data = df.head(preview_rows).values.tolist()
+
+        modal = tk.Toplevel(self.master)
+        modal.title("Previsualización de CSV")
+        modal.transient(self.master)
+        modal.grab_set()
+        modal.geometry("1200x800")
+
+        ttk.Label(modal, text=f"Archivo: {file_path}", style="Header.TLabel").pack(anchor="w", padx=16, pady=(16, 2))
+        ttk.Label(modal, text=f"Filas: {len(df)}    Columnas: {len(df.columns)}", style="Muted.TLabel").pack(anchor="w", padx=16, pady=(0, 8))
+
+        frame = ttk.Frame(modal)
+        frame.pack(fill=tk.BOTH, expand=True, padx=16, pady=8)
+
+        cols = preview_cols
+        xscroll = ttk.Scrollbar(frame, orient="horizontal")
+        xscroll.pack(side=tk.BOTTOM, fill=tk.X)
+        yscroll = ttk.Scrollbar(frame, orient="vertical")
+        yscroll.pack(side=tk.RIGHT, fill=tk.Y)
+        table = ttk.Treeview(frame, columns=cols, show="headings", height=preview_rows, xscrollcommand=xscroll.set, yscrollcommand=yscroll.set)
+        # Calcular ancho óptimo de cada columna
+        for idx, c in enumerate(cols):
+            table.heading(c, text=c)
+            # Longitud máxima entre nombre de columna y valores
+            maxlen = max([len(str(c))] + [len(str(row[idx])) for row in preview_data])
+            width_px = min(max(60, maxlen * 9), 400)  # 9px por caracter, máx 400px
+            table.column(c, width=width_px, anchor="w")
+
+        for row in preview_data:
+            table.insert("", "end", values=row)
+        table.pack(fill=tk.BOTH, expand=True)
+        xscroll.config(command=table.xview)
+        yscroll.config(command=table.yview)
+
+        # Scroll acelerado (factor 10)
+        def _on_mousewheel_modal(event):
+            factor = 10
+            if event.state & 0x0001:  # Shift presionado
+                table.xview_scroll(-1 * int((event.delta / 50) * factor), "units")
+            else:
+                table.yview_scroll(-1 * int((event.delta / 50) * factor), "units")
+            return "break"
+        table.bind("<MouseWheel>", _on_mousewheel_modal)
+        table.bind("<Button-4>", lambda e: table.yview_scroll(-3, "units"))
+        table.bind("<Button-5>", lambda e: table.yview_scroll(3, "units"))
+
+        btns = ttk.Frame(modal)
+        btns.pack(fill=tk.X, pady=8)
+        ttk.Button(btns, text="Cerrar", command=modal.destroy).pack(side=tk.RIGHT, padx=16)
 
     def _create_body(self):
         container = ttk.Frame(self.master)
@@ -505,7 +575,10 @@ class App(ttk.Frame):
         table_card.pack(fill=tk.BOTH, expand=True, pady=(12,0))
 
         cols = ("PERIODO","MES","SEDE","TURNO","CICLO","AULA","DOCENTE","CURSO")
-        table = ttk.Treeview(table_card, columns=cols, show="headings", height=18)
+        # Scrollbar horizontal
+        xscroll = ttk.Scrollbar(table_card, orient="horizontal")
+        xscroll.pack(side=tk.BOTTOM, fill=tk.X)
+        table = ttk.Treeview(table_card, columns=cols, show="headings", height=18, xscrollcommand=xscroll.set)
         for c in cols:
             table.heading(c, text=c)
             table.column(c, width=140, anchor="w")
@@ -516,6 +589,22 @@ class App(ttk.Frame):
             tag = "evenrow" if i % 2 == 0 else "oddrow"
             table.insert("", "end", values=("2025-II","AGOSTO","ROSITA","MAÑANA","CICLO I","O-302","MENDOZA","FUNDAMENTOS"), tags=(tag,))
         table.pack(fill=tk.BOTH, expand=True)
+        xscroll.config(command=table.xview)
+
+        # Mejorar velocidad de scroll con mouse
+        def _on_mousewheel(event):
+            # Shift+Wheel = horizontal, normal = vertical
+            factor = 10  # mayor factor = más rápido
+            if event.state & 0x0001:  # Shift presionado
+                table.xview_scroll(-1 * int((event.delta / 50) * factor), "units")
+            else:
+                table.yview_scroll(-1 * int((event.delta / 50) * factor), "units")
+            return "break"
+        # Windows usa <MouseWheel>, Mac usa <MouseWheel> pero delta diferente
+        table.bind("<MouseWheel>", _on_mousewheel)
+        # Linux usa <Button-4>/<Button-5> para scroll vertical
+        table.bind("<Button-4>", lambda e: table.yview_scroll(-3, "units"))
+        table.bind("<Button-5>", lambda e: table.yview_scroll(3, "units"))
 
         actions = ttk.Frame(frame)
         actions.pack(fill=tk.X, pady=10)
